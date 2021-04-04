@@ -1,18 +1,50 @@
 import React, { Component } from 'react';
 import { fetchMovie } from "../actions/movieActions";
+import { setReviews } from "../actions/reviewActions";
 import {connect} from 'react-redux';
-import {Card, ListGroup, ListGroupItem } from 'react-bootstrap';
+import {Card, ListGroup, ListGroupItem, Form, Button} from 'react-bootstrap';
 import { BsStarFill } from 'react-icons/bs'
 import { Image } from 'react-bootstrap';
 
+
 class MovieDetail extends Component {
 
+    constructor(props){
+        super(props);
+        this.setReview = this.setReview.bind(this);
+        this.enterData = this.enterData.bind(this);
+
+        this.state = {
+            reviews : {
+                comment : '',
+                rating : Number,
+            }
+        };
+    }
+
+    setReview(event) {
+        let setReview = Object.assign({}, this.state.reviews);
+
+        setReview[event.target.id] = event.target.value;
+        this.setState({
+            reviews: setReview
+        });
+    }
+
+    enterData(){
+        const {dispatch} = this.props;
+        dispatch(setReviews(this.state.reviews));
+    }
+
+    
     componentDidMount() {
         const {dispatch} = this.props;
         if (this.props.selectedMovie == null) {
             dispatch(fetchMovie(this.props.movieId));
         }
     }
+     
+    
 
     render() {
         const DetailInfo = () => {
@@ -44,7 +76,25 @@ class MovieDetail extends Component {
                             </p>
                         )}
                     </Card.Body>
+                    <Card.Header>Add a Review</Card.Header>
+                    <Form className='form-horizontal'>
+                        <Form.Group controlId="Comment">
+                            <Form.Label>Comment</Form.Label>
+                            <Form.Control onChange={this.setReview} value={this.state.reviews.comment} type="Text" placeholder="Enter Comment" />
+                        </Form.Group>
+
+                        <Form.Group controlId="Rating">
+                            <Form.Label>Rating</Form.Label>
+                            <Form.Control onChange={this.setReview} value={this.state.reviews.rating}  type="Number" placeholder="Enter Rating" />
+                        </Form.Group>
+                        <Button onClick={this.enterData}>Submit</Button>
+                     </Form>
                 </Card>
+               
+            
+
+
+
             )
         }
 
