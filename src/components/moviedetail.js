@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import { fetchMovie } from "../actions/movieActions";
-import { setReviews } from "../actions/reviewActions";
+import { addReview, fetchMovie } from "../actions/movieActions";
 import {connect} from 'react-redux';
 import {Card, ListGroup, ListGroupItem, Form, Button} from 'react-bootstrap';
 import { BsStarFill } from 'react-icons/bs'
@@ -11,43 +10,66 @@ class MovieDetail extends Component {
 
     constructor(props){
         super(props);
-        this.setReview = this.setReview.bind(this);
-        this.enterData = this.enterData.bind(this);
-
+        console.log('props', props);
+        
+        this.updateDetails = this.updateDetails.bind(this);
+        this.submitReview = this.submitReview.bind(this);
+        
+        //this.updateReview = this.updateReview.bind(this);
+        //this.updateRating =  this.updateRating.bind(this);
+        
         this.state = {
-            reviews : {
+            details : {
+                title: '',              
                 comment : '',
-                rating : Number,
+                rating : 0
             }
-        };
+        }
+       
     }
 
-    setReview(event) {
-        let setReview = Object.assign({}, this.state.reviews);
+    submitReview(){
+        //this.setState.details.title = this.props.selectedMovie.title;
+        //this.setState.details.rating = this.rating;
+        //this.setState.details.review = this.review;
 
-        setReview[event.target.id] = event.target.value;
-        this.setState({
-            reviews: setReview
-        });
-    }
-
-    enterData(){
         const {dispatch} = this.props;
-        dispatch(setReviews(this.state.reviews));
+        if(this.state.details.comment === "" || this.state.details.rating === 0){
+            alert("No rating or review")
+        }else {
+            dispatch(addReview(this.state.details));
+        }
+        
     }
 
-    
     componentDidMount() {
         const {dispatch} = this.props;
         if (this.props.selectedMovie == null) {
             dispatch(fetchMovie(this.props.movieId));
         }
     }
-     
-    
 
+    /*updateReview(event) {
+        this.review = event.target.value;
+    }
+
+    updateRating(event){
+        this.rating = event.target.value
+    }*/
+
+    updateDetails(event) {
+        let updateDetails = Object.assign({}, this.state.details);
+
+        updateDetails[event.target.id] = event.target.value;
+        updateDetails['title'] = this.props.selectedMovie.title;
+        this.setState({
+            details: updateDetails
+        });
+    }
+
+        
     render() {
-        const DetailInfo = () => {
+        //const DetailInfo = () => {
             if (!this.props.selectedMovie) {
                 return <div>Loading....</div>
             }
@@ -65,7 +87,7 @@ class MovieDetail extends Component {
                                 <p key={i}>
                                     <b>{actor.actor_name}</b> {actor.character_name}
                                 </p>)}
-                        </ListGroupItem>
+                            </ListGroupItem>
                         <ListGroupItem><h4><BsStarFill/> {this.props.selectedMovie.AverageReviews}</h4></ListGroupItem>
                     </ListGroup>
                     <Card.Body>
@@ -78,17 +100,17 @@ class MovieDetail extends Component {
                     </Card.Body>
                     <Card.Header>Add a Review</Card.Header>
                     <Form className='form-horizontal'>
-                        <Form.Group controlId="Comment">
+                        <Form.Group controlId="comment">
                             <Form.Label>Comment</Form.Label>
-                            <Form.Control onChange={this.setReview} value={this.state.reviews.comment} type="Text" placeholder="Enter Comment" />
+                            <Form.Control onChange={this.updateDetails} value={this.state.details.comment} type="Text" placeholder="Enter Comment" />
                         </Form.Group>
 
-                        <Form.Group controlId="Rating">
+                        <Form.Group controlId="rating">
                             <Form.Label>Rating</Form.Label>
-                            <Form.Control onChange={this.setReview} value={this.state.reviews.rating}  type="Number" placeholder="Enter Rating" />
+                            <Form.Control onChange={this.updateDetails} value={this.state.details.rating}  type="Number" min="1" max="5" placeholder="Enter Rating" />
                         </Form.Group>
-                        <Button onClick={this.enterData}>Submit</Button>
-                     </Form>
+                        <Button onClick={this.submitReview}>Submit</Button>
+                    </Form>
                 </Card>
                
             
@@ -98,15 +120,17 @@ class MovieDetail extends Component {
             )
         }
 
-        return (
-            <DetailInfo />
-        )
-    }
+//     //     return (
+//     //         <DetailInfo />
+//     //     )
+//     // }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
+    console.log()
     return {
         selectedMovie: state.movie.selectedMovie
+        
     }
 }
 

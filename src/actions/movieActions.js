@@ -44,9 +44,11 @@ export function fetchMovie(movie_title) {
             if (!response.ok) {
                 throw Error(response.statusText);
             }
+            
             return response.json()
         }).then((res) => {
-            dispatch(movieFetched(res.movie));
+            console.log("FetchMovie RES", res)
+            dispatch(movieFetched(res.movie[0]));
         }).catch((e) => console.log(e));
     }
 }
@@ -66,10 +68,38 @@ export function fetchMovies() {
             if (!response.ok) {
                 throw Error(response.statusText);
             }
+            
             return response.json()
         }).then((res) => {
-            console.log(res.movie)
+            console.log("FetchMovies RES", res)
             dispatch(moviesFetched(res.movie));
+        }).catch((e) => console.log(e));
+    }
+}
+
+export function addReview(data){
+    const env = runtimeEnv();
+    console.log("data", data);
+    return dispatch => {
+        return fetch(`${env.REACT_APP_API_URL}/reviews`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': localStorage.getItem('token')
+            },
+            mode: 'cors',
+            body : JSON.stringify(data)
+        }).then((response) => {
+            if (!response.ok) {
+                throw Error(response.statusText);
+            }
+            
+            console.log("AddReview", response);
+            return response.json()
+        }).then((res) => {
+            window.location.reload();
+            console.log("RES", res);
         }).catch((e) => console.log(e));
     }
 }
